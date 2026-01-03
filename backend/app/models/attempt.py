@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.models.base import Base
@@ -12,6 +12,9 @@ class Attempt(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     probe_id = Column(Integer, ForeignKey("probes.id"), nullable=False)
     score = Column(Integer, nullable=False)
+    passed = Column(Boolean, default=False)
+    evaluated_depth = Column(Integer)
 
     user = relationship("User", back_populates="attempts")
     probe = relationship("Probe", back_populates="attempts")
+    

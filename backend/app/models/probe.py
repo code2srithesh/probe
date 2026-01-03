@@ -14,3 +14,5 @@ class Probe(Base):
 
     skill = relationship("Skill", back_populates="probes")
     attempts = relationship("Attempt", back_populates="probe")
+    depth_level = Column(Integer, nullable=False)
+    probe_type = Column(String, nullable=False)  # explain / debug / design
