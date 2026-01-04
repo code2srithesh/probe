@@ -1,18 +1,81 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
-
-from app.schemas.user import UserCreate, UserOut
-from app.crud.user import create_user, get_users
-from app.api.deps import get_db
+from app.database import get_db
+from app.services.parser import extract_skills_from_resume
+from app.services.generator import generate_probes_for_skill
+from app.models.skill import Skill
+from app.models.user_skill import UserSkill
+from app.models.user import User
+from app.models.attempt import Attempt
+from pydantic import BaseModel
+from typing import List
+import shutil
+import os
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
+@router.post("/{user_id}/upload_resume")
+async def scan_resume(user_id: int, file: UploadFile = File(...)):
+    # 1. Validate File
+    if not file.filename.endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files allowed")
 
-@router.post("/", response_model=UserOut)
-def create(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(db, user)
+    file_location = f"temp_{file.filename}"
+    
+    try:
+        # 2. Save
+        with open(file_location, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+        
+        # 3. Extract (With Error Handling)
+        try:
+            extracted_skills = extract_skills_from_resume(file_location)
+        except Exception as e:
+            return {"found_skills": [], "error": str(e)}
+            
+        return {"found_skills": extracted_skills}
 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload Error: {str(e)}")
+    
+    finally:
+        # 4. Cleanup
+        if os.path.exists(file_location):
+            os.remove(file_location)
 
-@router.get("/", response_model=list[UserOut])
-def read_all(db: Session = Depends(get_db)):
-    return get_users(db)
+class ConfirmSkillsRequest(BaseModel):
+    skills: List[str]
+
+@router.post("/{user_id}/confirm_skills")
+async def confirm_skills(user_id: int, request: ConfirmSkillsRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        user = User(id=user_id, email=f"user{user_id}@example.com", name=f"User {user_id}")
+        db.add(user)
+        db.commit()
+
+    added_skills = []
+    for skill_name in request.skills:
+        skill = db.query(Skill).filter(Skill.name == skill_name).first()
+        if not skill:
+            skill = Skill(name=skill_name)
+            db.add(skill)
+            db.commit()
+            db.refresh(skill)
+            generate_probes_for_skill(db, skill.name, skill.id)
+
+        existing_link = db.query(UserSkill).filter(UserSkill.user_id == user_id, UserSkill.skill_id == skill.id).first()
+        if not existing_link:
+            link = UserSkill(user_id=user_id, skill_id=skill.id, claimed_level=5, verified_level=0)
+            db.add(link)
+            added_skills.append(skill_name)
+    
+    db.commit()
+    return {"message": "Skills added!", "count": len(added_skills)}
+
+@router.delete("/{user_id}/reset_skills")
+def reset_user_skills(user_id: int, db: Session = Depends(get_db)):
+    db.query(Attempt).filter(Attempt.user_id == user_id).delete()
+    db.query(UserSkill).filter(UserSkill.user_id == user_id).delete()
+    db.commit()
+    return {"message": "Profile reset successfully"}

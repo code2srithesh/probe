@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROBE | Skill Reality Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-dark: #0f172a; --card-dark: #1e293b; --primary: #3b82f6; --success: #10b981; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; }
+        .app-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        #login-screen { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .login-box { background: var(--card-dark); padding: 40px; border-radius: 16px; border: 1px solid var(--border); width: 100%; max-width: 400px; text-align: center; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        h1 { margin: 0; font-size: 24px; font-weight: 700; }
+        .logo-span { color: var(--primary); }
+        .controls { display: flex; gap: 12px; margin-bottom: 30px; }
+        input[type="text"] { background: var(--card-dark); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; flex-grow: 1; }
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+        .btn:hover { filter: brightness(1.1); }
+        .btn:disabled { opacity: 0.6; cursor: wait; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .skill-card { background: var(--card-dark); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .skill-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        .status-verified { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .status-unverified { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+        .level-display { display: flex; align-items: baseline; gap: 5px; margin-bottom: 20px; }
+        .current-level { font-size: 32px; font-weight: 700; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; }
+        .modal { background: var(--card-dark); width: 600px; max-width: 90%; padding: 30px; border-radius: 16px; border: 1px solid var(--border); }
+        textarea { width: 100%; height: 120px; background: #020617; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 8px; margin: 20px 0; resize: none; }
+        .loader { width: 16px; height: 16px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .result-box { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; }
+        .result-pass { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); }
+        .result-fail { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>PROBE <span class="logo-span">//</span></h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Skill Reality Verification Engine</p>
+            <input type="text" id="user-id-input" placeholder="Enter User ID (e.g., 1)" style="width:100%; margin-bottom: 20px; text-align:center;">
+            <button class="btn" style="width:100%; justify-content:center;" onclick="login()">Enter Dashboard</button>
+        </div>
+    </div>
+
+    <div id="dashboard" class="app-container" style="display:none;">
+        <header>
+            <div>
+                <h1>PROBE <span class="logo-span">//</span> Dashboard</h1>
+                <div style="font-size: 13px; color: var(--text-muted);">User ID: <span id="display-user-id">1</span></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="file" id="resume-upload" style="display:none" onchange="uploadResume()">
+                <button class="btn btn-outline" onclick="document.getElementById('resume-upload').click()">📄 Upload Resume PDF</button>
+                <button class="btn btn-outline" style="border-color:#ef4444; color:#ef4444;" onclick="resetProfile()">⚠️ Reset</button>
+                <button class="btn btn-outline" onclick="logout()">Log Out</button>
+            </div>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="new-skill-name" placeholder="Add specific skill manually (e.g. Rust)...">
+            <button class="btn" onclick="addNewSkill()">+ Add Skill</button>
+        </div>
+
+        <div id="skills-container" class="grid"></div>
+    </div>
+
+    <div id="selection-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Resume Scanned 📄</h2>
+            <p style="color:var(--text-muted); margin-bottom:20px;">Select the skills you want to verify:</p>
+            <div id="skills-list" style="max-height:300px; overflow-y:auto; margin-bottom:20px; border:1px solid var(--border); padding:10px; border-radius:8px;"></div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn btn-outline" onclick="document.getElementById('selection-modal').style.display='none'">Cancel</button>
+                <button class="btn" onclick="confirmSelection()" id="confirm-btn">Import Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-modal" class="modal-overlay">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between;">
+                <h2 id="q-title" style="margin:0;">Verification</h2>
+                <span id="q-badge" class="skill-status status-unverified">LEVEL 1</span>
+            </div>
+            <p id="q-text" style="color: var(--text-muted); margin-top: 20px;">Loading...</p>
+            <textarea id="q-answer" placeholder="Type your detailed answer here..."></textarea>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn" onclick="submitAnswer()" id="submit-btn">Submit Answer</button>
+            </div>
+            <div id="result-area" class="result-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // ⚡ MATCHING BACKEND ADDRESS EXACTLY
+        const API_URL = "http://127.0.0.1:8000";
+        let USER_ID = 1;
+        let currentAttemptId = null;
+        let pollTimer = null;
+
+        function login() {
+            const val = document.getElementById('user-id-input').value;
+            if(val) USER_ID = val;
+            document.getElementById('display-user-id').innerText = USER_ID;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            loadProfile();
+        }
+
+        function logout() { location.reload(); }
+
+        async function loadProfile() {
+            if(pollTimer) clearTimeout(pollTimer);
+            const container = document.getElementById('skills-container');
+            try {
+                const res = await fetch(`${API_URL}/profile/${USER_ID}`);
+                if(!res.ok) throw new Error("User not found");
+                const data = await res.json();
+                
+                container.innerHTML = '';
+                if(data.skills.length === 0) {
+                    container.innerHTML = '<p style="color:var(--text-muted)">No skills found.</p>';
+                    return;
+                }
+
+                let isGenerating = false;
+                data.skills.forEach(skill => {
+                    let btnHtml = '';
+                    if(skill.next_probe_id === -1) {
+                        isGenerating = true;
+                        btnHtml = `<button class="btn btn-outline" style="width:100%;" disabled><span class="loader"></span> Generating...</button>`;
+                    } else if (skill.next_probe_id) {
+                        btnHtml = `<button class="btn" style="width:100%;" onclick="startQuiz(${skill.next_probe_id})">Verify Level ${skill.verified_level + 1} →</button>`;
+                    } else {
+                        btnHtml = `<button class="btn btn-outline" style="width:100%; color:var(--success); border-color:var(--success);" disabled>Max Level ✅</button>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'skill-card';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <h3 style="margin:0; font-size:18px;">${skill.skill_name}</h3>
+                            <span class="skill-status ${skill.status === 'Verified' ? 'status-verified' : 'status-unverified'}">${skill.status}</span>
+                        </div>
+                        <div class="level-display"><span class="current-level">${skill.verified_level}</span><span style="color:#64748b; font-size:14px;">/ 3 Levels</span></div>
+                        ${btnHtml}
+                    `;
+                    container.appendChild(card);
+                });
+
+                if(isGenerating) pollTimer = setTimeout(loadProfile, 4000);
+
+            } catch(e) { container.innerHTML = '<p style="color:#ef4444">Error loading profile. Is Backend running?</p>'; }
+        }
+
+        async function uploadResume() {
+            const file = document.getElementById('resume-upload').files[0];
+            if(!file) return;
+            const btn = document.querySelector('button[onclick*="resume-upload"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Scanning...";
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch(`${API_URL}/users/${USER_ID}/upload_resume`, { method: 'POST', body: formData });
+                if(!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(`Server Error: ${res.status} ${txt}`);
+                }
+                const data = await res.json();
+                
+                let skills = Array.isArray(data) ? data : data.found_skills || [];
+                if(skills.length === 0) { alert("No skills found."); return; }
+
+                const list = document.getElementById('skills-list');
+                list.innerHTML = '';
+                skills.forEach(s => {
+                    const l = document.createElement('label');
+                    l.style.display='flex'; l.style.alignItems='center'; l.style.padding='8px';
+                    l.innerHTML = `<input type="checkbox" value="${s}" checked style="margin-right:10px;"><span>${s}</span>`;
+                    list.appendChild(l);
+                });
+                document.getElementById('selection-modal').style.display = 'flex';
+
+            } catch(e) { alert(`Upload Failed: ${e.message}`); } 
+            finally { btn.innerText = originalText; btn.disabled = false; }
+        }
+
+        async function confirmSelection() {
+            const selected = Array.from(document.querySelectorAll('#skills-list input:checked')).map(cb => cb.value);
+            if(selected.length === 0) return alert("Select at least one.");
+            
+            const btn = document.getElementById('confirm-btn');
+            btn.innerText = "Generating..."; btn.disabled = true;
+            try {
+                await fetch(`${API_URL}/users/${USER_ID}/confirm_skills`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({skills: selected})
+                });
+                document.getElementById('selection-modal').style.display='none';
+                loadProfile();
+            } catch(e) { alert("Error importing"); } 
+            finally { btn.innerText = "Import Selected"; btn.disabled = false; }
+        }
+
+        async function addNewSkill() {
+            const name = document.getElementById('new-skill-name').value;
+            if(!name) return;
+            try {
+                await fetch(`${API_URL}/skills/add`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({user_id: USER_ID, skill_name: name, claimed_level: 5})
+                });
+                document.getElementById('new-skill-name').value = '';
+                loadProfile();
+            } catch(e) { alert("Error adding skill"); }
+        }
+
+        async function resetProfile() {
+            if(!confirm("Delete all verified skills?")) return;
+            try { await fetch(`${API_URL}/users/${USER_ID}/reset_skills`, {method:'DELETE'}); loadProfile(); }
+            catch(e) { alert("Error resetting"); }
+        }
+
+        async function startQuiz(probeId) {
+            document.getElementById('quiz-modal').style.display = 'flex';
+            document.getElementById('result-area').style.display = 'none';
+            document.getElementById('q-answer').value = '';
+            document.getElementById('q-text').innerText = "Loading question...";
+            try {
+                const res = await fetch(`${API_URL}/attempts/`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({user_id: USER_ID, probe_id: probeId})
+                });
+                const attempt = await res.json();
+                currentAttemptId = attempt.id;
+                document.getElementById('q-text').innerText = attempt.probe.question;
+                document.getElementById('q-badge').innerText = `LEVEL ${attempt.probe.depth_level}`;
+            } catch(e) { console.error(e); }
+        }
+
+        async function submitAnswer() {
+            const ans = document.getElementById('q-answer').value;
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "AI Analyzing..."; btn.disabled = true;
+            try {
+                const res = await fetch(`${API_URL}/evaluate/${currentAttemptId}`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({user_answer: ans})
+                });
+                const result = await res.json();
+                const box = document.getElementById('result-area');
+                box.style.display = 'block';
+                box.className = `result-box ${result.passed ? 'result-pass' : 'result-fail'}`;
+                box.innerHTML = `<strong>${result.passed ? 'PASSED' : 'FAILED'} (${result.score}%)</strong><br>${result.feedback}`;
+                if(result.passed) setTimeout(() => { closeModal(); loadProfile(); }, 2000);
+            } catch(e) { alert("Error submitting"); }
+            finally { btn.innerText = originalText; btn.disabled = false; }
+        }
+
+        function closeModal() { document.getElementById('quiz-modal').style.display = 'none'; }
+    </script>
+</body>
+</html>

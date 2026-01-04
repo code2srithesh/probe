@@ -1,34 +1,37 @@
 from fastapi import FastAPI
-from app.api.routes.evaluate import router as evaluate_router
-from app.api.routes.skills_snapshot import router as skills_snapshot_router
-from app.core.database import engine
-from app.models.base import Base
-from app.api.routes.profile import router as profile_router
+from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine
+from app.models import base
+from app.api.routes import users, skills, attempts, evaluate, profile
 
+# Create Tables
+base.Base.metadata.create_all(bind=engine)
 
+app = FastAPI(title="PROBE | Skill Reality Engine")
 
-from app.api.routes import (
-    users_router,
-    skills_router,
-    probes_router,
-    attempts_router
+# ---------------------------------------------------------
+# 🔓 CORS SETTINGS (THE KEY TO FIXING UPLOAD)
+# ---------------------------------------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",  # VS Code Live Server
+        "http://localhost:5500",  # Alternative URL
+        "*"                       # Allow everything (Safety net)
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+# ---------------------------------------------------------
 
-app = FastAPI(title="Probe API")
-app.include_router(skills_snapshot_router)
-app.include_router(profile_router)
-
-# create tables
-Base.metadata.create_all(bind=engine)
-
-# include routes
-app.include_router(users_router)
-app.include_router(skills_router)
-app.include_router(probes_router)
-app.include_router(attempts_router)
-app.include_router(evaluate_router)
-
+# Register Routes
+app.include_router(users.router)
+app.include_router(skills.router)
+app.include_router(attempts.router)
+app.include_router(evaluate.router)
+app.include_router(profile.router)
 
 @app.get("/")
-def root():
-    return {"status": "Probe backend running"}
+def read_root():
+    return {"status": "System Online", "engine": "Groq Llama 3"}

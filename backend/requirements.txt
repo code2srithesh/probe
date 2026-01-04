@@ -1,7 +1,16 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-psycopg2-binary
-python-dotenv
-pydantic
-pydantic-settings
+# --- Core Framework ---
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.9   # REQUIRED for Uploading Files (Fixes the upload crash)
+
+# --- Database ---
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9    # (Kept this since you had it for PostgreSQL)
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# --- AI & Processing (NEW) ---
+groq==0.4.2               # The Engine (Llama 3)
+pdfplumber==0.10.3        # The PDF Reader
+python-dotenv==1.0.1      # Loads .env file
+requests==2.31.0          # Standard helper

@@ -1,2 +1,23 @@
-./venv
-./.env
+# Python System Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# OS System Files
+.DS_Store
+
+# Test Artifacts (IMPORTANT)
+temp_*.pdf
+test_resume.pdf
+*.log
