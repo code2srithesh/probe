@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROBE | Skill Reality Verification Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* GLASS MORPHISM UTILS */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* BUTTONS */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px var(--primary-glow);
+            font-size: 14px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--primary-glow); }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); box-shadow: none; }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid var(--danger); box-shadow: none; }
+        .btn-danger:hover { background: var(--danger); color: white; }
+        .btn-icon { padding: 8px 12px; }
+
+        input, textarea {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: inherit;
+            width: 100%;
+            font-size: 16px;
+        }
+        textarea { min-height: 250px; line-height: 1.6; resize: vertical; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); }
+
+        /* LAYOUT */
+        .app-container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+        
+        /* LOGIN SCREEN */
+        #login-screen {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 50px;
+            border-radius: 24px;
+            text-align: center;
+        }
+        .logo { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; line-height: 1.2; }
+        .logo span { color: var(--primary); }
+        .subtitle { color: var(--text-muted); font-size: 14px; font-weight: 400; margin-top: 5px; display: block;}
+
+        /* DASHBOARD HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        /* RECRUITER STATS (NEW) */
+        #recruiter-stats {
+            display: none;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .stat-value { font-size: 36px; font-weight: 800; color: white; margin: 10px 0; }
+        .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* SKILL GRID */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        
+        .skill-card {
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .skill-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .skill-name { font-size: 20px; font-weight: 700; margin: 0; }
+        .badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-verified { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-unverified { background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.4); }
+
+        .progress-container { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 20px; }
+        .big-number { font-size: 42px; font-weight: 800; line-height: 1; }
+        .total-number { color: var(--text-muted); font-size: 14px; margin-bottom: 6px; }
+
+        /* SCORE METER ANIMATION */
+        .meter-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            height: 12px;
+            width: 100%;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .meter-fill { height: 100%; border-radius: 8px; transition: width 1s ease-out; width: 0%; }
+        .meter-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 5px; }
+
+        /* MODALS */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            z-index: 100; justify-content: center; align-items: center;
+            animation: fadeIn 0.2s forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .modal {
+            width: 750px; max-width: 95%;
+            padding: 40px; border-radius: 24px;
+            transform: scale(0.95); animation: popIn 0.2s forwards;
+            background: #151236; border: 1px solid var(--glass-border);
+            position: relative;
+        }
+        @keyframes popIn { to { transform: scale(1); } }
+
+        /* CLOSE BUTTON X */
+        .close-icon {
+            position: absolute; top: 20px; right: 20px;
+            cursor: pointer; color: var(--text-muted);
+            font-size: 24px; transition: 0.2s;
+        }
+        .close-icon:hover { color: white; transform: rotate(90deg); }
+
+        .checkbox-list {
+            max-height: 400px; overflow-y: auto;
+            margin: 20px 0; padding-right: 10px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .checkbox-item {
+            display: flex; align-items: center;
+            padding: 15px; border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.03);
+            transition: 0.2s;
+        }
+        .checkbox-item:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
+        .checkbox-item input { width: 20px; height: 20px; margin-right: 12px; accent-color: var(--primary); cursor: pointer; }
+
+        /* SPINNER */
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* RECRUITER BANNER */
+        #recruiter-banner {
+            display: none; background: #ec4899; color: white; 
+            padding: 12px; font-weight: 700; font-size: 14px; letter-spacing: 1px;
+            position: fixed; top: 0; width: 100%; z-index: 200;
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+        }
+        .exit-btn {
+            background: rgba(255,255,255,0.2); border: none; 
+            padding: 4px 12px; border-radius: 20px; color: white; 
+            font-size: 12px; cursor: pointer;
+        }
+        .exit-btn:hover { background: rgba(255,255,255,0.4); }
+
+    </style>
+</head>
+<body>
+
+    <div id="recruiter-banner" style="display:none;">
+        <span>👁️ RECRUITER VIEW (READ ONLY)</span>
+        <button class="exit-btn" onclick="toggleRecruiterMode()">Exit View</button>
+    </div>
+
+    <div id="login-screen">
+        <div class="glass login-card">
+            <h1 class="logo">PROBE<br><span class="subtitle">Skill Reality Verification Engine</span></h1>
+            
+            <div style="margin: 40px 0;">
+                <input type="text" id="user-id-input" placeholder="Enter Candidate ID (e.g. 1)" 
+                       style="margin-bottom: 20px; text-align:center; font-size:18px;" 
+                       onkeypress="handleEnter(event, login)">
+                       
+                <button class="btn" style="width:100%; justify-content:center; font-size:16px; padding:15px;" onclick="login()">
+                    Launch Engine 🚀
+                </button>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted)">PROBE verifies claims using deterministic logic.</p>
+        </div>
+    </div>
+
+    <div id="dashboard" class="app-container" style="display:none;">
+        <header>
+            <div>
+                <h1 class="logo" style="font-size:24px; margin:0;">PROBE <span style="font-weight:400; color:var(--text-muted); font-size:16px;">| Verification Engine</span></h1>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                    Candidate ID: <span id="display-user-id" style="color:white; font-weight:bold;">1</span>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:12px;" id="action-buttons">
+                <button class="btn btn-outline" onclick="triggerUpload()"><i class="ri-file-upload-line"></i> Upload Resume</button>
+                <input type="file" id="resume-upload" style="display:none" onchange="uploadResume()">
+                
+                <button class="btn btn-outline" onclick="toggleRecruiterMode()"><i class="ri-eye-line"></i> Recruiter View</button>
+                
+                <button class="btn btn-danger btn-icon" title="Reset Profile" onclick="resetProfile()"><i class="ri-delete-bin-line"></i></button>
+                
+                <button class="btn btn-outline btn-icon" title="Exit" onclick="logout()"><i class="ri-logout-box-r-line"></i></button>
+            </div>
+        </header>
+
+        <div id="recruiter-stats">
+            <div class="glass stat-card">
+                <span class="stat-value" style="color:white;" id="stat-total-skills">0</span>
+                <span class="stat-label">Total Claims</span>
+            </div>
+            <div class="glass stat-card">
+                <span class="stat-value" style="color:var(--success);" id="stat-verified-skills">0</span>
+                <span class="stat-label">Verified Skills</span>
+            </div>
+            <div class="glass stat-card">
+                <span class="stat-value" style="color:var(--primary);" id="stat-trust-score">0%</span>
+                <span class="stat-label">Reality Score</span>
+            </div>
+        </div>
+
+        <div class="glass" style="padding:15px; border-radius:16px; display:flex; gap:15px; margin-bottom:40px;" id="add-skill-bar">
+            <input type="text" id="new-skill-name" placeholder="Add a specific skill manually (e.g. Rust, System Design)..." 
+                   style="background:transparent; border:none; font-size:16px;" 
+                   onkeypress="handleEnter(event, addNewSkill)">
+            <button class="btn" onclick="addNewSkill()">+ Add Skill</button>
+        </div>
+
+        <div id="skills-container" class="grid">
+            </div>
+    </div>
+
+    <div id="selection-modal" class="modal-overlay">
+        <div class="modal">
+            <i class="ri-close-line close-icon" onclick="closeModal('selection-modal')"></i>
+            <h2 style="margin-top:0; font-size:24px;">Resume Analysis Complete 📄</h2>
+            <p style="color:var(--text-muted); font-size:16px;">Select the skills you want to verify:</p>
+            
+            <div id="skills-list" class="checkbox-list"></div>
+            
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:30px; border-top:1px solid var(--glass-border); padding-top:20px;">
+                <button class="btn btn-outline" onclick="closeModal('selection-modal')">Cancel</button>
+                <button class="btn" onclick="confirmSelection()" id="confirm-btn">Import Selected Skills</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-modal" class="modal-overlay">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 id="q-title" style="margin:0;">Verification Probe</h2>
+                <span id="q-badge" class="badge badge-unverified">LEVEL 1</span>
+            </div>
+            
+            <p id="q-text" style="font-size: 20px; line-height: 1.6; margin: 30px 0; color: #e2e8f0; font-weight:500;"></p>
+            
+            <textarea id="q-answer" placeholder="Type your detailed technical answer here..."></textarea>
+            
+            <div style="display:flex; gap:12px; justify-content:space-between; margin-top:20px;">
+                <button class="btn btn-outline" onclick="closeModal('quiz-modal')">← Back to Dashboard</button>
+                <button class="btn" onclick="submitAnswer()" id="submit-btn" style="padding: 12px 30px; font-size:16px;">Submit Answer</button>
+            </div>
+
+            <div id="result-area" style="margin-top:20px; display:none;" class="glass"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        let USER_ID = 1;
+        let currentAttemptId = null;
+        let pollTimer = null;
+        let isRecruiterMode = false;
+        let globalSkillsData = [];
+
+        // --- UTILS ---
+        function handleEnter(e, func) { if(e.key === 'Enter') func(); }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        // --- AUTH & MODES ---
+        function login() {
+            const val = document.getElementById('user-id-input').value;
+            if(val) USER_ID = val;
+            document.getElementById('display-user-id').innerText = USER_ID;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            loadProfile();
+        }
+
+        function logout() { location.reload(); }
+
+        function toggleRecruiterMode() {
+            isRecruiterMode = !isRecruiterMode;
+            const banner = document.getElementById('recruiter-banner');
+            const addBar = document.getElementById('add-skill-bar');
+            const stats = document.getElementById('recruiter-stats');
+            
+            if(isRecruiterMode) {
+                banner.style.display = 'flex';
+                addBar.style.display = 'none';
+                stats.style.display = 'grid';
+                document.body.style.marginTop = "50px";
+                calculateStats();
+            } else {
+                banner.style.display = 'none';
+                addBar.style.display = 'flex';
+                stats.style.display = 'none';
+                document.body.style.marginTop = "0";
+            }
+            loadProfile();
+        }
+
+        function calculateStats() {
+            if(!globalSkillsData.length) return;
+            
+            const total = globalSkillsData.length;
+            const verified = globalSkillsData.filter(s => s.verified_level > 0).length;
+            
+            // Calculate "Trust Score": Sum of verified levels / (Total Skills * Max Level)
+            let totalLevels = 0;
+            globalSkillsData.forEach(s => totalLevels += s.verified_level);
+            const maxPossible = total * 3; // Max level is 3
+            const score = maxPossible > 0 ? Math.round((totalLevels / maxPossible) * 100) : 0;
+
+            document.getElementById('stat-total-skills').innerText = total;
+            document.getElementById('stat-verified-skills').innerText = verified;
+            document.getElementById('stat-trust-score').innerText = score + "%";
+        }
+
+        // --- CORE LOGIC ---
+        async function loadProfile() {
+            if(pollTimer) clearTimeout(pollTimer);
+            const container = document.getElementById('skills-container');
+            
+            try {
+                const res = await fetch(`${API_URL}/profile/${USER_ID}`);
+                if(!res.ok) throw new Error("User not found");
+                const data = await res.json();
+                
+                globalSkillsData = data.skills; // Store for stats
+
+                container.innerHTML = '';
+                if(data.skills.length === 0) {
+                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:40px; border:1px dashed var(--glass-border); border-radius:20px;">No skills found. Upload a resume to start.</div>';
+                    return;
+                }
+
+                let isGenerating = false;
+                data.skills.forEach(skill => {
+                    let btnHtml = '';
+                    
+                    if (isRecruiterMode) {
+                        btnHtml = `<div style="height:40px;"></div>`; 
+                    } else {
+                        if (skill.next_probe_id === -1) {
+                            isGenerating = true;
+                            btnHtml = `<button class="btn btn-outline" style="width:100%;" disabled><div class="spinner"></div> Generating...</button>`;
+                        } else if (skill.next_probe_id) {
+                            btnHtml = `<button class="btn" style="width:100%;" onclick="startQuiz(${skill.next_probe_id})">Verify Level ${skill.verified_level + 1} →</button>`;
+                        } else {
+                            btnHtml = `<button class="btn btn-outline" style="width:100%; color:var(--success); border-color:var(--success);" disabled>Max Level Verified ✅</button>`;
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'glass skill-card';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <h3 class="skill-name">${skill.skill_name}</h3>
+                            <span class="badge ${skill.status === 'Verified' ? 'badge-verified' : 'badge-unverified'}">${skill.status}</span>
+                        </div>
+                        <div class="progress-container">
+                            <span class="big-number" style="color:${skill.verified_level > 0 ? 'var(--primary)' : 'white'}">${skill.verified_level}</span>
+                            <span class="total-number">/ 3 Levels Verified</span>
+                        </div>
+                        ${btnHtml}
+                    `;
+                    container.appendChild(card);
+                });
+
+                if(isGenerating) pollTimer = setTimeout(loadProfile, 3000);
+                if(isRecruiterMode) calculateStats(); // Update stats if active
+
+            } catch(e) { console.error(e); }
+        }
+
+        // --- UPLOAD FLOW (ROBUST FIX) ---
+        function triggerUpload() { document.getElementById('resume-upload').click(); }
+
+        async function uploadResume() {
+            const fileInput = document.getElementById('resume-upload');
+            const file = fileInput.files[0];
+            if(!file) return;
+            
+            const btns = document.querySelectorAll('button');
+            btns.forEach(b => b.disabled = true);
+            const uploadBtn = document.querySelector('button[onclick="triggerUpload()"]');
+            const originalText = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = "<div class='spinner'></div> Scanning...";
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch(`${API_URL}/users/${USER_ID}/upload_resume`, { method: 'POST', body: formData });
+                
+                // FIX: If upload fails, show error but DO NOT crash page
+                if(!res.ok) {
+                    const errText = await res.text();
+                    alert(`Upload failed: ${errText}`);
+                    return; // Stop here, stay on dashboard
+                }
+                
+                const data = await res.json();
+                
+                let skills = [];
+                if (Array.isArray(data)) skills = data;
+                else if (data.found_skills) skills = data.found_skills;
+                
+                if(skills.length === 0) {
+                    alert("No technical skills found in PDF.");
+                    return;
+                }
+
+                // Populate Modal
+                const list = document.getElementById('skills-list');
+                list.innerHTML = '';
+                skills.forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = 'checkbox-item';
+                    div.onclick = function(e) {
+                        if(e.target.type !== 'checkbox') {
+                            const cb = this.querySelector('input');
+                            cb.checked = !cb.checked;
+                        }
+                    };
+                    div.innerHTML = `<input type="checkbox" value="${s}" checked><span>${s}</span>`;
+                    list.appendChild(div);
+                });
+                
+                document.getElementById('selection-modal').style.display = 'flex';
+
+            } catch(e) { 
+                console.error(e);
+                alert("Network error during upload."); 
+            }
+            finally { 
+                btns.forEach(b => b.disabled = false); 
+                uploadBtn.innerHTML = originalText;
+                fileInput.value = ''; // Reset input
+            }
+        }
+
+        async function confirmSelection() {
+            const selected = Array.from(document.querySelectorAll('#skills-list input:checked')).map(cb => cb.value);
+            if(selected.length === 0) return alert("Select at least one skill.");
+            
+            const btn = document.getElementById('confirm-btn');
+            btn.innerText = "Generating Probes..."; btn.disabled = true;
+            
+            try {
+                await fetch(`${API_URL}/users/${USER_ID}/confirm_skills`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({skills: selected})
+                });
+                closeModal('selection-modal');
+                loadProfile();
+            } catch(e) { alert("Error importing skills"); } 
+            finally { btn.innerText = "Import Selected Skills"; btn.disabled = false; }
+        }
+
+        // --- QUIZ FLOW ---
+        async function addNewSkill() {
+            const name = document.getElementById('new-skill-name').value;
+            if(!name) return;
+            try {
+                await fetch(`${API_URL}/skills/add`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({user_id: USER_ID, skill_name: name, claimed_level: 5})
+                });
+                document.getElementById('new-skill-name').value = '';
+                loadProfile();
+            } catch(e) { alert("Error adding skill"); }
+        }
+
+        async function resetProfile() {
+            if(!confirm("Wipe all data for this Candidate?")) return;
+            try { await fetch(`${API_URL}/users/${USER_ID}/reset_skills`, {method:'DELETE'}); loadProfile(); }
+            catch(e) { alert("Error resetting"); }
+        }
+
+        async function startQuiz(probeId) {
+            document.getElementById('quiz-modal').style.display = 'flex';
+            document.getElementById('result-area').style.display = 'none';
+            document.getElementById('q-answer').value = '';
+            document.getElementById('q-text').innerText = "Loading question...";
+            
+            try {
+                const res = await fetch(`${API_URL}/attempts/`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({user_id: USER_ID, probe_id: probeId})
+                });
+                const attempt = await res.json();
+                currentAttemptId = attempt.id;
+                
+                document.getElementById('q-text').innerText = attempt.probe.question;
+                document.getElementById('q-badge').innerText = `LEVEL ${attempt.probe.depth_level}`;
+                
+                setTimeout(() => document.getElementById('q-answer').focus(), 100);
+            } catch(e) { console.error(e); }
+        }
+
+        async function submitAnswer() {
+            const ans = document.getElementById('q-answer').value;
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Analyzing Semantics..."; btn.disabled = true;
+            
+            try {
+                const res = await fetch(`${API_URL}/evaluate/${currentAttemptId}`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({user_answer: ans})
+                });
+                const result = await res.json();
+                
+                const box = document.getElementById('result-area');
+                box.style.display = 'block';
+                box.style.padding = '24px';
+                box.style.borderRadius = '16px';
+                
+                let colorVar = '#ef4444'; // Red
+                let statusText = "Low Confidence";
+                
+                if(result.passed) {
+                    colorVar = '#10b981'; // Green
+                    statusText = "Verified Match";
+                } else if (result.score > 40) {
+                    colorVar = '#f59e0b'; // Orange
+                    statusText = "Partial Match";
+                }
+
+                box.style.background = `rgba(${result.passed ? '16, 185, 129' : '239, 68, 68'}, 0.15)`;
+                box.style.border = `1px solid ${colorVar}`;
+                
+                box.innerHTML = `
+                    <div class="meter-text">
+                        <span>${statusText}</span>
+                        <span>${result.score}% Accuracy</span>
+                    </div>
+                    <div class="meter-container">
+                        <div class="meter-fill" style="width: ${result.score}%; background: ${colorVar}; box-shadow: 0 0 10px ${colorVar};"></div>
+                    </div>
+                    
+                    <div style="margin-top:15px; font-size:16px; line-height:1.5;">
+                        <strong style="color:${colorVar}; font-size:18px;">
+                            ${result.passed ? 'PASSED ✅' : 'BOUNDARY REACHED ⚠️'}
+                        </strong>
+                        <br><br>
+                        <span style="color:#e2e8f0">${result.feedback}</span>
+                    </div>
+                `;
+
+                if(result.passed) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#34d399'] });
+                    setTimeout(() => { closeModal('quiz-modal'); loadProfile(); }, 3500);
+                }
+
+            } catch(e) { 
+                console.error(e);
+                alert("Error submitting answer."); 
+            }
+            finally { 
+                btn.innerText = originalText; 
+                btn.disabled = false; 
+            }
+        }
+    </script>
+</body>
+</html>
