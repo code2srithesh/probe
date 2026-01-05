@@ -73,9 +73,25 @@ async def confirm_skills(user_id: int, request: ConfirmSkillsRequest, db: Sessio
     db.commit()
     return {"message": "Skills added!", "count": len(added_skills)}
 
-@router.delete("/{user_id}/reset_skills")
-def reset_user_skills(user_id: int, db: Session = Depends(get_db)):
-    db.query(Attempt).filter(Attempt.user_id == user_id).delete()
-    db.query(UserSkill).filter(UserSkill.user_id == user_id).delete()
+@router.delete("/{user_id}/skills/{skill_id}")
+def delete_specific_skill(user_id: int, skill_id: int, db: Session = Depends(get_db)):
+    # 1. Check if link exists
+    user_skill = db.query(UserSkill).filter(
+        UserSkill.user_id == user_id, 
+        UserSkill.skill_id == skill_id
+    ).first()
+    
+    if not user_skill:
+        raise HTTPException(status_code=404, detail="Skill not found for this user")
+
+    # 2. Delete related Attempts (Clean up history)
+    db.query(Attempt).filter(
+        Attempt.user_id == user_id,
+        Attempt.probe.has(skill_id=skill_id)
+    ).delete(synchronize_session=False)
+
+    # 3. Delete the UserSkill link
+    db.delete(user_skill)
     db.commit()
-    return {"message": "Profile reset successfully"}
+    
+    return {"message": "Skill removed successfully"}

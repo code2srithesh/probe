@@ -63,6 +63,17 @@
         .btn-danger:hover { background: var(--danger); color: white; }
         .btn-icon { padding: 8px 12px; }
 
+        /* NEW DELETE BUTTON STYLE */
+        .btn-icon-small {
+            padding: 6px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-icon-small:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
         input, textarea {
             background: rgba(0,0,0,0.3);
             border: 1px solid var(--glass-border);
@@ -108,7 +119,7 @@
             border-bottom: 1px solid var(--glass-border);
         }
         
-        /* RECRUITER STATS (NEW) */
+        /* RECRUITER STATS */
         #recruiter-stats {
             display: none;
             grid-template-columns: 1fr 1fr 1fr;
@@ -138,11 +149,17 @@
         }
         .skill-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); }
         
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
         .skill-name { font-size: 20px; font-weight: 700; margin: 0; }
         .badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-verified { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
         .badge-unverified { background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.4); }
+
+        /* REALITY GAP VISUALS (NEW) */
+        .reality-section { margin-bottom: 20px; }
+        .reality-bar-bg { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+        .reality-bar-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.5s; }
+        .reality-text { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
         .progress-container { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 20px; }
         .big-number { font-size: 42px; font-weight: 800; line-height: 1; }
@@ -290,8 +307,7 @@
             <button class="btn" onclick="addNewSkill()">+ Add Skill</button>
         </div>
 
-        <div id="skills-container" class="grid">
-            </div>
+        <div id="skills-container" class="grid"></div>
     </div>
 
     <div id="selection-modal" class="modal-overlay">
@@ -411,11 +427,22 @@
 
                 let isGenerating = false;
                 data.skills.forEach(skill => {
+                    // CALCULATE REALITY SCORES
+                    const claimed = skill.claimed_level || 5; // Default to 5 if not set
+                    const verified = skill.verified_level;
+                    const realityScore = Math.round((verified / claimed) * 100);
+                    const gap = claimed - verified;
+                    
+                    // Button Logic
                     let btnHtml = '';
+                    let deleteBtn = '';
                     
                     if (isRecruiterMode) {
                         btnHtml = `<div style="height:40px;"></div>`; 
                     } else {
+                        // Delete Button (Only for Candidate Mode)
+                        deleteBtn = `<button class="btn-icon-small" onclick="deleteSkill(${skill.skill_id})" title="Remove Skill"><i class="ri-close-line"></i></button>`;
+
                         if (skill.next_probe_id === -1) {
                             isGenerating = true;
                             btnHtml = `<button class="btn btn-outline" style="width:100%;" disabled><div class="spinner"></div> Generating...</button>`;
@@ -431,12 +458,26 @@
                     card.innerHTML = `
                         <div class="card-header">
                             <h3 class="skill-name">${skill.skill_name}</h3>
-                            <span class="badge ${skill.status === 'Verified' ? 'badge-verified' : 'badge-unverified'}">${skill.status}</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="badge ${skill.status === 'Verified' ? 'badge-verified' : 'badge-unverified'}">${skill.status}</span>
+                                ${deleteBtn}
+                            </div>
                         </div>
-                        <div class="progress-container">
-                            <span class="big-number" style="color:${skill.verified_level > 0 ? 'var(--primary)' : 'white'}">${skill.verified_level}</span>
-                            <span class="total-number">/ 3 Levels Verified</span>
+                        
+                        <div class="reality-section">
+                            <div class="reality-text">
+                                <span>Reality Score</span>
+                                <span>${realityScore}% Verified</span>
+                            </div>
+                            <div class="reality-bar-bg">
+                                <div class="reality-bar-fill" style="width: ${realityScore}%; background: ${realityScore < 40 ? '#ef4444' : '#10b981'};"></div>
+                            </div>
+                            <div class="reality-text">
+                                <span style="font-size:10px;">Gap: ${gap} Levels</span>
+                                <span style="font-size:10px;">${verified} / ${claimed} Claimed</span>
+                            </div>
                         </div>
+
                         ${btnHtml}
                     `;
                     container.appendChild(card);
@@ -446,6 +487,19 @@
                 if(isRecruiterMode) calculateStats(); // Update stats if active
 
             } catch(e) { console.error(e); }
+        }
+
+        // --- NEW DELETE ACTION ---
+        async function deleteSkill(skillId) {
+            if(!confirm("Are you sure you want to remove this skill? This cannot be undone.")) return;
+            try {
+                const res = await fetch(`${API_URL}/users/${USER_ID}/skills/${skillId}`, { method: 'DELETE' });
+                if(res.ok) {
+                    loadProfile();
+                } else {
+                    alert("Failed to delete skill.");
+                }
+            } catch(e) { alert("Error deleting skill"); }
         }
 
         // --- UPLOAD FLOW (ROBUST FIX) ---
