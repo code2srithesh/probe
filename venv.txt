@@ -1,0 +1,8 @@
+to create
+python -m venv mvenv
+
+to run venv
+# On Windows
+.\mvenv\Scripts\activate
+# On Unix or MacOS
+source mvenv/bin/activate
