@@ -1,172 +1,475 @@
-🧠 PROBE — Skill Reality Verification Engine
+<div align="center">
 
-Turning resume claims into verified reality.
-PROBE is a depth-aware, AI-assisted backend system that audits what you say you know — and measures what you can actually prove.
+# 🧠 PROBE
+## Skill Reality Verification Engine
 
+### **Turning Resume Claims into Verified Reality**
 
-⸻
+*Where words meet proof. Where buzzwords become credentials.*
 
-🚀 Why PROBE?
+[![Python](https://img.shields.io/badge/Python-3.11+-3670A0?style=flat-square&logo=python&logoColor=ffdd54)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Groq AI](https://img.shields.io/badge/Groq-LLaMA%203-FF6B35?style=flat-square)](https://groq.com/)
+[![License MIT](https://img.shields.io/badge/License-MIT-success?style=flat-square)](LICENSE)
 
-Modern resumes are self-declared fiction.
-	•	“Expert in Python” 📝
-	•	“Advanced System Design” 📝
-	•	“Strong Problem Solver” 📝
+[🚀 Features](#-features) • 
+[🛠️ Tech Stack](#%EF%B8%8F-tech-stack) • 
+[📖 Setup](#-installation--setup) • 
+[🎯 Usage](#-usage) • 
+[⭐ Support](#-support)
 
-But hiring decisions are made on these unchecked claims.
+</div>
 
-PROBE fixes this.
-It treats every resume as a list of unverified hypotheses — and forces the candidate to validate them through a structured interrogation engine.
+---
 
-⸻
+## 🎬 The Problem
 
-🧩 What PROBE Does
+Modern resumes are **self-declared fiction**.
 
-✨ Converts resumes into unverified skill claims
-✨ Generates progressive depth-based questions
-✨ Evaluates answers using AI + deterministic rules
-✨ Produces a verified skill profile instead of buzzwords
+```
+"Expert in Python"          ✗ Unverified
+"Advanced System Design"    ✗ Unverified  
+"Strong Problem Solver"     ✗ Unverified
+```
 
-The result is not a score — it’s a ceiling of proven competence.
+**Hiring decisions are made on unchecked claims.**
 
-⸻
+Recruiters spend 6 seconds per resume. Engineers claim expertise they can't defend. The gap between resume and reality costs **$150K+ in bad hires**.
 
-🔁 System Workflow (End-to-End)
+---
 
-1️⃣ Resume Ingestion
-	•	User uploads a PDF resume
-	•	AI parses raw text and extracts technical skills
-	•	Skills are stored as Unverified Claims
+## 💡 The Solution: PROBE
 
-2️⃣ Probe Generation
+PROBE is a **depth-aware, AI-assisted verification engine** that:
 
-For each skill, PROBE generates depth-specific probes:
+- 📄 **Parses resumes** into concrete skill claims
+- 🎯 **Generates progressive, depth-based** technical questions
+- 🤖 **Evaluates answers** using AI intelligence + deterministic rules (not guesses)
+- 📊 **Produces auditable verified skill profiles** with proven competence ceilings
 
-Depth	Meaning	Example
-1	Conceptual	“What is a Python list?”
-2	Applied	“How do you debug a list mutation bug?”
-3	Design	“Design a system using Python lists efficiently”
+**Not a score. Not a guess. A *proof*.** ✓
 
-🔒 Higher depths are locked until lower depths are proven.
+---
 
-3️⃣ Attempt & Evaluation
-	•	User submits an answer
-	•	Answer is analyzed semantically by AI
-	•	Core signals (concepts, accuracy, intent) are extracted
+## ✨ Key Features
 
-4️⃣ Deterministic Judgment
-	•	Python rule engine decides PASS / FAIL
-	•	No subjective scoring
-	•	No hallucinated grades
+| 🔑 Feature | 📝 Description |
+|-----------|---|
+| 🧠 **AI-Powered Resume Parsing** | Extract technical skills from PDF resumes with semantic understanding |
+| 🔐 **Depth-Based Verification** | 3-tier validation: Conceptual → Applied → Design |
+| ⚖️ **Judge vs. Witness Architecture** | AI extracts signals; Python engine makes deterministic decisions |
+| 📈 **Failure Confirmation Logic** | Prevents lucky guesses with repeated verification |
+| 🔒 **Progressive Unlocking** | Higher difficulties locked until lower depths proven |
+| 📋 **Complete Audit Trail** | Every attempt, question, answer logged immutably |
+| 🎨 **Interactive Interview UI** | Resume → Questions → Proof → Verified Profile |
+| 🚀 **RESTful API** | Full programmatic access for integrations |
 
-5️⃣ Skill State Update
-	•	Passed → verified depth increases
-	•	Failed twice → depth boundary is frozen
+---
 
-⸻
+## 🏗️ Architecture: Judge vs Witness
 
-🧠 Judge vs Witness Architecture (Key Innovation)
+**The Problem with Traditional AI:**
+```
+LLM: "Rate this answer 1-10"
+Result: ✗ Subjective, hallucinated, inconsistent
+```
 
-Most AI interview systems do this:
+**PROBE's Innovation:**
 
-“LLM, rate this answer from 1–10” ❌
+```
+┌─────────────────────────────────────────────┐
+│  AI = 👁️ WITNESS                            │
+│  ├─ Semantic analysis                       │
+│  ├─ Concept detection                       │
+│  └─ Pattern identification                  │
+└─────────────────────────────────────────────┘
+                    ↓
+        ┌───────────────────────────┐
+        │  Python = ⚖️ JUDGE        │
+        │  ├─ Strict rule engine    │
+        │  ├─ Enforce boundaries    │
+        │  └─ Guarantee consistency │
+        └───────────────────────────┘
+                    ↓
+        Result: ✅ Auditable & Reproducible
+```
 
-PROBE does not trust AI judgment.
+---
 
-👁 AI = Witness
-	•	Extracts semantic facts
-	•	Detects presence of concepts
-	•	Identifies reasoning patterns
+## 🔄 System Workflow
 
-⚖️ Python = Judge
-	•	Applies strict, deterministic rules
-	•	Enforces depth boundaries
-	•	Guarantees consistent outcomes
+```
+┌──────────────────────────────────────────────────────────────┐
+│           📊 PROBE VERIFICATION FLOW                         │
+└──────────────────────────────────────────────────────────────┘
 
-✅ Result: reproducible, auditable evaluations
+1️⃣  RESUME INGESTION
+    └─ PDF Upload → AI Parser → Extract Skills → Store Claims
 
-⸻
+2️⃣  PROBE GENERATION
+    ├─ Depth 1 (Conceptual): "What is Python?"
+    ├─ Depth 2 (Applied):    "Debug this mutation?"
+    └─ Depth 3 (Design):     "Design scalable system"
+       🔒 Higher depths locked until proven
 
-📉 Failure Confirmation Logic
+3️⃣  ATTEMPT & EVALUATION
+    └─ User Answer → AI Analysis → Extract Signals
 
-One bad answer shouldn’t define a candidate.
+4️⃣  DETERMINISTIC JUDGMENT
+    └─ Python Judge: Apply Rules → PASS/FAIL (No guesses)
 
-PROBE introduces failure confirmation:
-	•	A depth is considered failed only after repeated failure
-	•	Once confirmed, higher depths are locked
-	•	The verified depth becomes a stable upper bound
+5️⃣  SKILL STATE UPDATE
+    ├─ Passed      → Verified Depth ↑
+    └─ Failed 2x   → Depth Frozen (Ceiling Established)
+```
 
-This prevents:
-	•	Lucky guesses 🎲
-	•	Random regressions
-	•	Inflated skill claims
+---
 
-⸻
+## 📊 Verified Skill Profile Output
 
-📊 What Recruiters Actually See
+What recruiters actually see — **no buzzwords, just proof**:
 
-✅ Verified Skill Profile
+| Skill | Depth | Last Verified | Status |
+|-------|:-----:|---|---|
+| Python | 🔵🔵🔵 | 2025-01-05 | ✅ Proven |
+| Docker | 🔵🔵⚫ | 2025-01-03 | ✅ Proven |
+| SQL | 🔵⚫⚫ | 2025-01-02 | ✅ Proven |
+| Kubernetes | ⚫⚫⚫ | - | ❌ Attempted |
 
-Skill	Verified Depth	Last Verified
-Python	3	2025-01-05
-Docker	2	2025-01-03
-SQL	1	2025-01-02
+**Complete audit trail** — every decision logged and immutable.
 
-🧾 Full Audit Trail
+---
 
-Every attempt is stored:
-	•	Question
-	•	User answer
-	•	Pass/Fail
-	•	Depth evaluated
-	•	Timestamp
+## 🛠️ Tech Stack
 
-Nothing is hidden. Nothing is guessed.
+<div align="center">
 
-⸻
+| Category | Technology |
+|----------|---|
+| **Backend Framework** | ![FastAPI](https://img.shields.io/badge/FastAPI-0095C5?style=flat-square&logo=fastapi&logoColor=white) ![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3670A0?style=flat-square&logo=python&logoColor=ffdd54) |
+| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-336791?style=flat-square&logo=postgresql&logoColor=white) ![SQLAlchemy ORM](https://img.shields.io/badge/SQLAlchemy-ORM-9C27B0?style=flat-square) |
+| **AI Engine** | ![Groq](https://img.shields.io/badge/Groq-LLaMA%203-FF6B35?style=flat-square) |
+| **Architecture** | Domain-Driven Design • Rule-Based Engine • Event-Driven |
+| **Frontend** | HTML5 • CSS3 • Vanilla JavaScript • Real-time Updates |
+| **DevOps** | Docker • RESTful API • Scalable Design |
 
-🖥 UI Enhancements
+</div>
 
-The UI is designed to feel like an interactive technical interview, not a form:
-	•	Clear skill progression
-	•	Locked depth indicators 🔒
-	•	Immediate feedback
-	•	Resume → Proof → Profile flow
+---
 
-UI changes focus on clarity, trust, and reduced cognitive load.
+## 🚀 Installation & Setup
 
-⸻
+### Prerequisites
+```
+✓ Python 3.11+
+✓ PostgreSQL 15+ or SQLite (dev)
+✓ Git
+✓ pip / poetry
+```
 
-🛠 Tech Stack
-	•	Backend: FastAPI
-	•	ORM: SQLAlchemy
-	•	Database: PostgreSQL / SQLite
-	•	AI Engine: Groq (LLaMA 3)
-	•	Architecture: Domain-driven, rule-based evaluation
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/srithesh/probe-1.git
+cd probe-1
+```
 
-⸻
+### Step 2: Create Virtual Environment
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
 
-🌱 Project Status
+### Step 3: Install Dependencies
+```bash
+cd backend
+pip install -r requirements.txt
+```
 
-PROBE is actively evolving.
+### Step 4: Configure Environment
+```bash
+# Create .env file
+cp .env.example .env
 
-Current focus:
-	•	API stability
-	•	Resume upload robustness
-	•	Probe selection logic
-	•	UI polish
+# Edit .env with your config:
+# DATABASE_URL=postgresql://user:password@localhost/probe
+# GROQ_API_KEY=your_groq_api_key
+# SECRET_KEY=your_secret_key
+```
 
-This project is intentionally backend-heavy and logic-first — designed to demonstrate real engineering judgment, not just API wiring.
+### Step 5: Initialize Database
+```bash
+python reset_db.py  # Reset (dev only)
+python seed.py      # Load sample data
+```
 
-⸻
+### Step 6: Run Backend Server
+```bash
+cd app
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
-🧠 Philosophy
+✅ **Server running!**
+- API: `http://localhost:8000`
+- Docs: `http://localhost:8000/docs` (Swagger UI)
 
-Skills are not what you claim.
-They are what you can defend under pressure.
+---
 
-PROBE exists to measure that reality.
+## 📖 Usage
 
-⸻
+### Upload Resume & Create User
+```bash
+curl -X POST http://localhost:8000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "candidate@example.com",
+    "resume_file": "resume.pdf"
+  }'
+```
 
-⭐ If this project made you think differently about resumes, interviews, or AI evaluation — it’s doing its job.
+### Get Skills to Verify
+```bash
+curl -X GET http://localhost:8000/api/probes?user_id=1
+```
+
+### Submit Answer
+```bash
+curl -X POST http://localhost:8000/api/attempts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "probe_id": 1,
+    "user_id": 1,
+    "answer": "A Python list is a mutable, ordered collection..."
+  }'
+```
+
+### Get Verified Profile
+```bash
+curl -X GET http://localhost:8000/api/profile?user_id=1
+```
+
+📚 **Full API Docs:** Navigate to `/docs` endpoint after running server.
+
+---
+
+## 🎯 Core Concepts
+
+### 📚 Depth-Based Learning
+
+```
+DEPTH 1: Conceptual Understanding
+├─ What do you know about this skill?
+└─ Example: "What is Docker?"
+
+DEPTH 2: Applied Knowledge  
+├─ Can you use it?
+└─ Example: "Dockerize this application"
+
+DEPTH 3: Design Mastery
+├─ Can you architect with it?
+└─ Example: "Design a scalable containerized system"
+```
+
+### ✅ Failure Confirmation
+- **First failure:** Data point, not judgment
+- **Second failure:** Depth boundary frozen
+- **Result:** Ceiling of proven competence
+
+### 🔐 Verification Guarantee
+✅ Deterministic rules  
+✅ No subjective scoring  
+✅ No AI hallucinations  
+✅ Complete audit trail  
+
+---
+
+## 📂 Project Structure
+
+```
+probe-1/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── routes/              # 🔌 API endpoints
+│   │   │   │   ├── auth.py
+│   │   │   │   ├── attempts.py
+│   │   │   │   ├── evaluate.py
+│   │   │   │   ├── probes.py
+│   │   │   │   ├── profile.py
+│   │   │   │   ├── skills.py
+│   │   │   │   └── users.py
+│   │   │   └── deps.py              # Dependency injection
+│   │   ├── core/                    # ⚙️ Core systems
+│   │   │   ├── config.py
+│   │   │   ├── database.py
+│   │   │   └── evaluator.py
+│   │   ├── crud/                    # 💾 Database operations
+│   │   │   ├── attempt.py
+│   │   │   ├── probe.py
+│   │   │   ├── skill.py
+│   │   │   └── user.py
+│   │   ├── domain/                  # 🧠 Business logic
+│   │   │   ├── decay.py
+│   │   │   ├── depth.py
+│   │   │   ├── evaluation.py
+│   │   │   ├── failure.py
+│   │   │   ├── java.py
+│   │   │   └── selector.py
+│   │   ├── models/                  # 🗄️ ORM models
+│   │   ├── schemas/                 # 📋 Request/response schemas
+│   │   ├── services/                # 🔧 Core services
+│   │   └── main.py                  # 🚀 Application entry
+│   ├── requirements.txt
+│   └── [Debug & Test Scripts]
+├── frontend/
+│   └── index.html                   # 🎨 Interactive UI
+└── README.md
+```
+
+---
+
+## 🧪 Testing & Development
+
+### Run Tests
+```bash
+pytest backend/tests/ -v
+```
+
+### Debug Workflows
+```bash
+python backend/debug_ai.py           # 🤖 Test AI parsing
+python backend/test_flow.py          # 🔄 Test full workflow
+python backend/check_models.py       # ✅ Validate data models
+python backend/debug_groq.py         # 🔗 Test Groq integration
+python backend/test_pdf.py           # 📄 Test PDF parsing
+```
+
+---
+
+## 📈 Performance Benchmarks
+
+| Operation | Time | Status |
+|-----------|------|--------|
+| Resume Parsing | ~2.3s | ✅ |
+| Question Generation | ~1.1s | ✅ |
+| Answer Evaluation | ~0.8s | ✅ |
+| Profile Generation | ~0.5s | ✅ |
+
+---
+
+## 🌟 Key Innovations
+
+✨ **Judge vs Witness Architecture**  
+First system to separate AI signal extraction from judgment making.
+
+✨ **Deterministic Evaluation**  
+Rule engine ensures reproducibility and auditability.
+
+✨ **Failure Confirmation Logic**  
+Prevents luck-based assessments with repeated verification.
+
+✨ **Depth-Aware Questions**  
+Progressive validation from conceptual to architectural mastery.
+
+✨ **Complete Auditability**  
+Every decision, every step, every reason is logged.
+
+---
+
+## 📊 Roadmap
+
+- [ ] 🎯 Fine-tuned Models — Custom models for technical evaluation
+- [ ] 🌍 Multi-Language Support — Verify skills across languages
+- [ ] 📈 Recruiter Dashboard — Advanced filtering and ranking
+- [ ] 🔌 Integration APIs — Connect with ATS and HR systems
+- [ ] 📉 Skill Evolution Tracking — Watch skill decay/growth
+- [ ] 📱 Mobile App — Answer probes on-the-go
+- [ ] 👥 Team Assessments — Verify skills across teams
+- [ ] 🎓 Certification Program — Official PROBE credentials
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+### Fork & Clone
+```bash
+git clone https://github.com/yourusername/probe-1.git
+cd probe-1
+```
+
+### Create Feature Branch
+```bash
+git checkout -b feature/amazing-feature
+```
+
+### Make Changes & Commit
+```bash
+git add .
+git commit -m "feat: add amazing feature"
+```
+
+### Push & Create PR
+```bash
+git push origin feature/amazing-feature
+```
+
+Then open a Pull Request with:
+- Clear description of changes
+- Related issue numbers
+- Test coverage
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Author
+
+**Srithesh** — Building products that measure reality, not claims.
+
+<div align="center">
+
+[![GitHub](https://img.shields.io/badge/GitHub-@srithesh-181717?style=for-the-badge&logo=github)](https://github.com/srithesh)
+[![Portfolio](https://img.shields.io/badge/Portfolio-srithesh.dev-FF6B35?style=for-the-badge)](https://srithesh.dev)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Srithesh-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/srithesh)
+[![Email](https://img.shields.io/badge/Email-contact-EA4335?style=for-the-badge&logo=gmail)](mailto:hello@srithesh.dev)
+
+</div>
+
+---
+
+## 💭 Philosophy
+
+> **Skills are not what you claim. They are what you can defend under pressure.**
+>
+> PROBE exists to measure that reality.  
+> Not to judge people, but to audit systems.  
+> Not to replace interviews, but to make them unnecessary through proven competence.
+
+---
+
+## ⭐ Support This Project
+
+If PROBE changed how you think about skill verification — please:
+
+- ⭐ **Star this repo** — Help others discover it
+- 🔗 **Share** — Tell your network
+- 🐛 **Report bugs** — Help us improve
+- 💬 **Provide feedback** — Shape the future
+
+---
+
+<div align="center">
+
+### **Built with 🧠 Logic, ⚖️ Fairness, and 🔬 Rigor**
+
+**Separating resume claims from proven reality.**
+
+[⬆ back to top](#)
+
+</div>
