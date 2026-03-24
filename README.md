@@ -11,7 +11,6 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Groq AI](https://img.shields.io/badge/Groq-LLaMA%203-FF6B35?style=flat-square)](https://groq.com/)
-[![License MIT](https://img.shields.io/badge/License-MIT-success?style=flat-square)](LICENSE)
 
 [🚀 Features](#-features) • 
 [🛠️ Tech Stack](#%EF%B8%8F-tech-stack) • 
@@ -422,22 +421,16 @@ Then open a Pull Request with:
 
 ---
 
-## 📜 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
 ## 👨‍💻 Author
 
 **Srithesh** — Building products that measure reality, not claims.
 
 <div align="center">
 
-[![GitHub](https://img.shields.io/badge/GitHub-@srithesh-181717?style=for-the-badge&logo=github)](https://github.com/srithesh)
-[![Portfolio](https://img.shields.io/badge/Portfolio-srithesh.dev-FF6B35?style=for-the-badge)](https://srithesh.dev)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Srithesh-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/srithesh)
-[![Email](https://img.shields.io/badge/Email-contact-EA4335?style=for-the-badge&logo=gmail)](mailto:hello@srithesh.dev)
+[![GitHub](https://img.shields.io/badge/GitHub-@code2srithesh-181717?style=for-the-badge&logo=github)](https://github.com/code2srithesh)
+[![Portfolio](https://img.shields.io/badge/Portfolio-portfolio.lovable.app-FF6B35?style=for-the-badge)](https://portfolio-srithesh.lovable.app)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-srithesh26-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/srithesh26)
+[![Email](https://img.shields.io/badge/Email-srithesh26@gmail.com-EA4335?style=for-the-badge&logo=gmail)](mailto:srithesh26@gmail.com)
 
 </div>
 
